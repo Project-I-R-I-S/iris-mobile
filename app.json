@@ -4,38 +4,31 @@
     "slug": "iris-mobile",
     "version": "0.1.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0F1115"
-    },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.iris.app"
     },
     "android": {
-      "package": "com.iris.app",
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0F1115"
-      }
+      "package": "com.iris.app"
     },
     "web": {
-      "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
     "plugins": [
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "extra": {
-      "apiBaseUrl": "http://localhost:8080",
+      "apiBaseUrl": "http://192.168.1.12:8080",
       "googleClientIdIos": "",
       "googleClientIdAndroid": "",
       "googleClientIdWeb": ""
-    }
+    },
+    "scheme": "iris"
   }
 }
