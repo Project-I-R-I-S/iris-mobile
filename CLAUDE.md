@@ -11,7 +11,7 @@ The mobile app talks to `iris-api` via REST — it never talks to the DB directl
 
 ## Stack
 
-- Expo SDK 51, React Native 0.74, TypeScript strict mode
+- Expo SDK 54, React Native 0.81, TypeScript strict mode
 - Tamagui for UI (compile-time optimized, cross-platform including web)
 - React Navigation (native stack + bottom tabs) — **not** Expo Router
 - TanStack Query for server state, Axios for HTTP
