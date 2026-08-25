@@ -3,6 +3,7 @@ import { Spinner, YStack } from 'tamagui';
 
 import { useAuth } from '@/auth/AuthContext';
 import { AddFoodScreen } from '@/features/nutrition/screens/AddFoodScreen';
+import { AddWeightScreen } from '@/features/weight/screens/AddWeightScreen';
 
 import { AuthNavigator } from './AuthNavigator';
 import { MainTabNavigator } from './MainTabNavigator';
@@ -30,6 +31,11 @@ export function RootNavigator() {
             name="AddFood"
             component={AddFoodScreen}
             options={{ headerShown: true, title: 'Add food', presentation: 'modal' }}
+          />
+          <Stack.Screen
+            name="AddWeight"
+            component={AddWeightScreen}
+            options={{ headerShown: true, title: 'Log weight', presentation: 'modal' }}
           />
         </>
       ) : (

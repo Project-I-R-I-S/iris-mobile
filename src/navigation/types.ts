@@ -9,6 +9,8 @@ export type AuthStackParamList = {
 export type MainTabParamList = {
   Dashboard: undefined;
   Nutrition: undefined;
+  Hydration: undefined;
+  Weight: undefined;
   Settings: undefined;
 };
 
@@ -16,6 +18,7 @@ export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamList>;
   Main: NavigatorScreenParams<MainTabParamList>;
   AddFood: undefined;
+  AddWeight: undefined;
 };
 
 declare global {
