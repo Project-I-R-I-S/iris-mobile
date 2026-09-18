@@ -65,7 +65,11 @@ apiClient.interceptors.response.use(
     }
 
     // Avoid a refresh loop if the refresh endpoint itself 401s.
-    if (original.url?.includes('/auth/refresh') || original.url?.includes('/auth/login')) {
+    if (
+      original.url?.includes('/auth/refresh') ||
+      original.url?.includes('/auth/login') ||
+      original.url?.includes('/auth/signup')
+    ) {
       return Promise.reject(error);
     }
 

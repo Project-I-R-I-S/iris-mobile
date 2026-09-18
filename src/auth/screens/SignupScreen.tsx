@@ -66,23 +66,20 @@ export function SignupScreen({ navigation }: Props) {
           onChangeText={setPassword}
         />
         {error && <Paragraph color="$red10">{error}</Paragraph>}
-        <Button size="$5" theme="active" onPress={onSubmit} disabled={submitting}>
+        <Button size="$5" theme="accent" onPress={onSubmit} disabled={submitting}>
           {submitting ? 'Creating account…' : 'Sign up'}
         </Button>
       </YStack>
 
-      <YStack gap="$3" alignItems="center">
-        <Separator />
-        <Text color="$color10">or</Text>
-        <Button
-          size="$5"
-          variant="outlined"
-          onPress={signInWithGoogle}
-          disabled={!isGoogleReady}
-        >
-          Continue with Google
-        </Button>
-      </YStack>
+      {isGoogleReady && (
+        <YStack gap="$3" alignItems="center">
+          <Separator />
+          <Text color="$color10">or</Text>
+          <Button size="$5" variant="outlined" onPress={signInWithGoogle}>
+            Continue with Google
+          </Button>
+        </YStack>
+      )}
 
       <Button chromeless onPress={() => navigation.navigate('Login')} marginTop="$4">
         Already have an account? Sign in

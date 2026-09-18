@@ -16,7 +16,7 @@ export function WelcomeScreen({ navigation }: Props) {
       </YStack>
 
       <YStack gap="$3" marginTop="$8">
-        <Button size="$5" theme="active" onPress={() => navigation.navigate('Signup')}>
+        <Button size="$5" theme="accent" onPress={() => navigation.navigate('Signup')}>
           Create account
         </Button>
         <Button size="$5" variant="outlined" onPress={() => navigation.navigate('Login')}>

@@ -62,7 +62,7 @@ export function AddWeightScreen() {
 
         <Button
           size="$5"
-          theme="active"
+          theme="accent"
           onPress={onSubmit}
           disabled={createMutation.isPending}
           marginTop="$4"

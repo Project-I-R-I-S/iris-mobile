@@ -2,6 +2,7 @@ import Constants from 'expo-constants';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { useCallback, useEffect } from 'react';
+import { Platform } from 'react-native';
 
 import { useAuth } from '@/auth/AuthContext';
 
@@ -18,11 +19,19 @@ export function useGoogleAuth() {
   const { loginWithGoogleIdToken } = useAuth();
 
   const extra = Constants.expoConfig?.extra ?? {};
+  const iosClientId = extra.googleClientIdIos as string | undefined;
+  const androidClientId = extra.googleClientIdAndroid as string | undefined;
+  const webClientId = extra.googleClientIdWeb as string | undefined;
+
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    iosClientId: extra.googleClientIdIos as string | undefined,
-    androidClientId: extra.googleClientIdAndroid as string | undefined,
-    webClientId: extra.googleClientIdWeb as string | undefined,
+    iosClientId,
+    androidClientId,
+    webClientId,
   });
+
+  const platformClientId =
+    Platform.OS === 'ios' ? iosClientId : Platform.OS === 'android' ? androidClientId : webClientId;
+  const isConfigured = !!platformClientId;
 
   useEffect(() => {
     if (response?.type === 'success' && response.params.id_token) {
@@ -36,6 +45,6 @@ export function useGoogleAuth() {
 
   return {
     signInWithGoogle,
-    isReady: !!request,
+    isReady: isConfigured && !!request,
   };
 }

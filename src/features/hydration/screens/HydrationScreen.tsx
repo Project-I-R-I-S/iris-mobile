@@ -1,6 +1,6 @@
 import { Droplet, Trash2 } from '@tamagui/lucide-icons';
 import { useState } from 'react';
-import { FlatList } from 'react-native';
+import { Alert, FlatList } from 'react-native';
 import { Button, Card, H2, H4, Input, Paragraph, Separator, Spinner, Text, XStack, YStack } from 'tamagui';
 
 import { useAuth } from '@/auth/AuthContext';
@@ -13,10 +13,15 @@ const QUICK_AMOUNTS = [250, 500];
 
 export function HydrationScreen() {
   const { user } = useAuth();
-  const timezone = user?.timezone ?? 'Asia/Kolkata';
+  const timezone = user?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
   const date = todayIso(timezone);
 
-  const { data: daily, isLoading: isDailyLoading } = useDailyHydration(date, timezone);
+  const {
+    data: daily,
+    isLoading: isDailyLoading,
+    isError: isDailyError,
+    refetch: refetchDaily,
+  } = useDailyHydration(date, timezone);
   const { data: entries, isLoading, isError, refetch, isRefetching } = useDailyWaterEntries(
     date,
     timezone,
@@ -28,7 +33,10 @@ export function HydrationScreen() {
 
   function logAmount(amountMl: number) {
     if (amountMl <= 0) return;
-    addWater.mutate({ amountMl, consumedAt: new Date().toISOString() });
+    addWater.mutate(
+      { amountMl, consumedAt: new Date().toISOString() },
+      { onError: () => Alert.alert("Couldn't log water", 'Something went wrong. Try again.') },
+    );
   }
 
   function onLogCustom() {
@@ -39,12 +47,33 @@ export function HydrationScreen() {
     }
   }
 
+  function confirmDelete(id: string) {
+    Alert.alert('Delete entry?', 'This cannot be undone.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () =>
+          deleteWater.mutate(id, {
+            onError: () => Alert.alert('Delete failed', "Couldn't delete this entry. Try again."),
+          }),
+      },
+    ]);
+  }
+
   return (
     <YStack flex={1} backgroundColor="$background">
       <YStack padding="$4" gap="$3" borderBottomWidth={1} borderColor="$borderColor">
         <H4>Today</H4>
         {isDailyLoading ? (
           <Spinner color="$color10" />
+        ) : isDailyError ? (
+          <YStack gap="$2" alignItems="flex-start">
+            <Paragraph color="$color10">Couldn't load today's water total.</Paragraph>
+            <Button size="$3" onPress={() => refetchDaily()}>
+              Retry
+            </Button>
+          </YStack>
         ) : (
           <XStack gap="$4" flexWrap="wrap" alignItems="flex-end">
             <YStack>
@@ -74,7 +103,7 @@ export function HydrationScreen() {
             <Button
               key={amount}
               icon={Droplet}
-              theme="active"
+              theme="accent"
               disabled={addWater.isPending}
               onPress={() => logAmount(amount)}
             >
@@ -108,7 +137,7 @@ export function HydrationScreen() {
           data={entries ?? []}
           keyExtractor={(e) => e.id}
           renderItem={({ item }) => (
-            <EntryRow entry={item} onDelete={() => deleteWater.mutate(item.id)} />
+            <EntryRow entry={item} onDelete={() => confirmDelete(item.id)} />
           )}
           ItemSeparatorComponent={() => <Separator />}
           ListEmptyComponent={

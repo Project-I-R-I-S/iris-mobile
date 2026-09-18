@@ -1,27 +1,28 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Plus } from '@tamagui/lucide-icons';
+import { Plus, Trash2 } from '@tamagui/lucide-icons';
 import { useMemo } from 'react';
-import { FlatList } from 'react-native';
+import { Alert, FlatList } from 'react-native';
 import { Button, Card, H3, H4, Paragraph, Separator, Spinner, Text, XStack, YStack } from 'tamagui';
 
 import { useAuth } from '@/auth/AuthContext';
 import { RootStackParamList } from '@/navigation/types';
 import { todayIso } from '@/utils/date';
 
-import { useDailyFoodEntries } from '../hooks';
+import { useDailyFoodEntries, useDeleteFoodEntry } from '../hooks';
 import { FoodEntry } from '../types';
 
 export function NutritionListScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { user } = useAuth();
-  const timezone = user?.timezone ?? 'Asia/Kolkata';
+  const timezone = user?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
   const date = todayIso(timezone);
 
   const { data: entries, isLoading, isError, refetch, isRefetching } = useDailyFoodEntries(
     date,
     timezone,
   );
+  const deleteEntry = useDeleteFoodEntry();
 
   const totals = useMemo(() => {
     if (!entries) return null;
@@ -36,6 +37,20 @@ export function NutritionListScreen() {
       { calories: 0, protein: 0, carbs: 0, fat: 0, caffeine: 0 },
     );
   }, [entries]);
+
+  function confirmDelete(id: string) {
+    Alert.alert('Delete entry?', 'This cannot be undone.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () =>
+          deleteEntry.mutate(id, {
+            onError: () => Alert.alert('Delete failed', "Couldn't delete this entry. Try again."),
+          }),
+      },
+    ]);
+  }
 
   return (
     <YStack flex={1} backgroundColor="$background">
@@ -65,7 +80,9 @@ export function NutritionListScreen() {
         <FlatList
           data={entries ?? []}
           keyExtractor={(e) => e.id}
-          renderItem={({ item }) => <EntryRow entry={item} />}
+          renderItem={({ item }) => (
+            <EntryRow entry={item} onDelete={() => confirmDelete(item.id)} />
+          )}
           ItemSeparatorComponent={() => <Separator />}
           ListEmptyComponent={
             <YStack padding="$6" alignItems="center">
@@ -80,7 +97,7 @@ export function NutritionListScreen() {
 
       <Button
         size="$5"
-        theme="active"
+        theme="accent"
         icon={Plus}
         position="absolute"
         bottom="$6"
@@ -105,7 +122,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function EntryRow({ entry }: { entry: FoodEntry }) {
+function EntryRow({ entry, onDelete }: { entry: FoodEntry; onDelete: () => void }) {
   return (
     <Card padding="$4" backgroundColor="$background" borderRadius={0}>
       <XStack justifyContent="space-between" alignItems="center">
@@ -126,6 +143,7 @@ function EntryRow({ entry }: { entry: FoodEntry }) {
             {Math.round(Number(entry.fatG))}
           </Text>
         </YStack>
+        <Button size="$3" circular chromeless icon={Trash2} onPress={onDelete} marginLeft="$2" />
       </XStack>
     </Card>
   );

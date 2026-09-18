@@ -7,6 +7,7 @@ import { TamaguiProvider, Theme } from 'tamagui';
 
 import { queryClient } from '@/api/queryClient';
 import { AuthProvider } from '@/auth/AuthContext';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { RootNavigator } from '@/navigation/RootNavigator';
 import tamaguiConfig from './tamagui.config';
 
@@ -22,7 +23,9 @@ export default function App() {
             <AuthProvider>
               <NavigationContainer>
                 <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-                <RootNavigator />
+                <ErrorBoundary>
+                  <RootNavigator />
+                </ErrorBoundary>
               </NavigationContainer>
             </AuthProvider>
           </QueryClientProvider>

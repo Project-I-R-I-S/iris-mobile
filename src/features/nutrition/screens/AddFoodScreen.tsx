@@ -73,7 +73,7 @@ export function AddFoodScreen() {
               <Button
                 key={m}
                 size="$3"
-                theme={mealType === m ? 'active' : undefined}
+                theme={mealType === m ? 'accent' : undefined}
                 variant={mealType === m ? undefined : 'outlined'}
                 onPress={() => setMealType(m)}
               >
@@ -136,7 +136,7 @@ export function AddFoodScreen() {
 
         <Button
           size="$5"
-          theme="active"
+          theme="accent"
           onPress={onSubmit}
           disabled={createMutation.isPending}
           marginTop="$4"

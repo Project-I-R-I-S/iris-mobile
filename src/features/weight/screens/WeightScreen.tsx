@@ -2,12 +2,13 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Plus, Trash2 } from '@tamagui/lucide-icons';
 import { useMemo } from 'react';
-import { FlatList } from 'react-native';
+import { Alert, FlatList } from 'react-native';
 import { Button, Card, H2, H4, Paragraph, Separator, Spinner, Text, XStack, YStack } from 'tamagui';
 
 import { useAuth } from '@/auth/AuthContext';
 import { RootStackParamList } from '@/navigation/types';
 import { todayIso } from '@/utils/date';
+import { isNotFoundError } from '@/utils/errors';
 
 import { useDeleteWeightEntry, useLatestWeight, useWeightEntries } from '../hooks';
 import { WeightEntry } from '../types';
@@ -17,7 +18,7 @@ const HISTORY_DAYS = 90;
 export function WeightScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { user } = useAuth();
-  const timezone = user?.timezone ?? 'Asia/Kolkata';
+  const timezone = user?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const { to, from } = useMemo(() => {
     const now = new Date();
@@ -28,7 +29,13 @@ export function WeightScreen() {
     return { to: toDate, from: fromDate };
   }, [timezone]);
 
-  const { data: latest, isLoading: isLatestLoading, isError: isLatestError } = useLatestWeight();
+  const {
+    data: latest,
+    isLoading: isLatestLoading,
+    isError: isLatestError,
+    error: latestError,
+    refetch: refetchLatest,
+  } = useLatestWeight();
   const { data: entries, isLoading, isError, refetch, isRefetching } = useWeightEntries(
     from,
     to,
@@ -36,13 +43,36 @@ export function WeightScreen() {
   );
   const deleteEntry = useDeleteWeightEntry();
 
+  const latestIsRealError = isLatestError && !isNotFoundError(latestError);
+
+  function confirmDelete(id: string) {
+    Alert.alert('Delete entry?', 'This cannot be undone.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () =>
+          deleteEntry.mutate(id, {
+            onError: () => Alert.alert('Delete failed', "Couldn't delete this entry. Try again."),
+          }),
+      },
+    ]);
+  }
+
   return (
     <YStack flex={1} backgroundColor="$background">
       <YStack padding="$4" gap="$2" borderBottomWidth={1} borderColor="$borderColor">
         <H4>Latest</H4>
         {isLatestLoading ? (
           <Spinner color="$color10" />
-        ) : isLatestError || !latest ? (
+        ) : latestIsRealError ? (
+          <YStack gap="$2" alignItems="flex-start">
+            <Paragraph color="$color10">Couldn't load your latest weight.</Paragraph>
+            <Button size="$3" onPress={() => refetchLatest()}>
+              Retry
+            </Button>
+          </YStack>
+        ) : !latest ? (
           <Paragraph color="$color10">No weight logged yet.</Paragraph>
         ) : (
           <XStack gap="$5" alignItems="flex-end">
@@ -80,7 +110,7 @@ export function WeightScreen() {
           data={entries ?? []}
           keyExtractor={(e) => e.id}
           renderItem={({ item }) => (
-            <EntryRow entry={item} onDelete={() => deleteEntry.mutate(item.id)} />
+            <EntryRow entry={item} onDelete={() => confirmDelete(item.id)} />
           )}
           ItemSeparatorComponent={() => <Separator />}
           ListEmptyComponent={
@@ -96,7 +126,7 @@ export function WeightScreen() {
 
       <Button
         size="$5"
-        theme="active"
+        theme="accent"
         icon={Plus}
         position="absolute"
         bottom="$6"

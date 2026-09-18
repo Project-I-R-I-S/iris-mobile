@@ -89,15 +89,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data);
   }, []);
 
-  // Restore session on cold start.
+  // Restore session on cold start. Wrapped end-to-end (not just the network
+  // call) so a storage read failure can't leave the app stuck on the
+  // loading spinner forever.
   useEffect(() => {
     (async () => {
-      const token = await tokenStorage.getAccessToken();
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
       try {
+        const token = await tokenStorage.getAccessToken();
+        if (!token) return;
         const { data } = await apiClient.get<User>('/api/v1/users/me');
         setUser(data);
       } catch {

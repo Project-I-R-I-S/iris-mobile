@@ -52,6 +52,35 @@ The mobile app talks to `iris-api` via REST — it never talks to the DB directl
 9. **Path alias `@/` = `src/`.** Configured in `tsconfig.json` and
    `babel.config.js`. Import as `@/features/nutrition/hooks`.
 
+## Code quality principles
+
+When generating or modifying code:
+
+- **Correctness first**, then maintainability, scalability, performance, and
+  readability. Production-ready code only.
+- Follow **SOLID, DRY, KISS, and separation of concerns**; prefer composition
+  over inheritance where appropriate; favor clean, modular architecture.
+- Avoid code smells, anti-patterns, unnecessary abstractions, duplicated
+  logic, and over-engineering — the simplest robust approach wins.
+- Follow modern language/framework best practices and conventions (see
+  **Architectural rules** above for this repo's specifics).
+- Write self-explanatory code with meaningful names; keep comments minimal
+  and purposeful.
+- Handle edge cases, validation, error handling, and resource management
+  explicitly — don't let them fall through implicitly.
+- Consider security, observability, reliability, and testability as part of
+  the design, not an afterthought.
+- Preserve existing behavior when refactoring, and backward compatibility
+  in general, unless explicitly told to change it.
+- Include unit/integration tests when relevant.
+- Before proposing a solution to a non-trivial problem, briefly weigh the
+  trade-offs and pick the simplest robust approach rather than the first
+  one that works.
+- If requirements are ambiguous, ask clarifying questions instead of making
+  risky assumptions.
+- Responses should be concise and implementation-focused — the final code
+  plus essential explanation, not filler or speculative alternatives.
+
 ## Reference implementation
 
 The **nutrition** feature is the fully-fleshed-out reference:
@@ -62,8 +91,9 @@ The **nutrition** feature is the fully-fleshed-out reference:
 - `src/features/nutrition/screens/NutritionListScreen.tsx` — list + daily totals
 - `src/features/nutrition/screens/AddFoodScreen.tsx` — form
 
-When building hydration/weight/sleep, copy this structure. Each of those
-directories has a `README.md` with feature-specific notes.
+Hydration and weight are now built on this structure too. When building
+sleep, copy it the same way — `src/features/sleep/README.md` has
+feature-specific notes.
 
 ## Auth flow
 
